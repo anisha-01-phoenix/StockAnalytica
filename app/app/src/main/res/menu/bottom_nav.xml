@@ -1,13 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <item android:title="Stock Analysis"
-        android:id="@+id/stocks"
-        android:icon="@drawable/stocks"/>
-    <item android:title="Portfolio Optimisation"
+    <item
+        android:id="@+id/home"
+        android:icon="@drawable/ic_home_black_24dp"
+        android:title="Home" />
+    <item
         android:id="@+id/portfolio"
-        android:icon="@drawable/portfolio_optimisation"/>
-    <item android:title="Profile"
+        android:icon="@drawable/portfolio_optimisation"
+        android:title="Portfolio Optimisation" />
+    <item
+        android:id="@+id/stocks"
+        android:icon="@drawable/stocks"
+        android:title="Stock Analysis" />
+    <item
         android:id="@+id/profile"
-        android:icon="@drawable/baseline_person_24"/>
+        android:icon="@drawable/baseline_person_24"
+        android:title="Profile" />
 </menu>

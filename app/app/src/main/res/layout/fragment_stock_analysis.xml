@@ -24,11 +24,37 @@
         app:srcCompat="@drawable/upload" />
 
     <ScrollView
-        android:id="@+id/scrollView"
+        android:id="@+id/scroll_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:scrollbars="horizontal">
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <TextView
+            android:id="@+id/uploaded_data_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="16dp"
+            android:text="STOCK DATA"
+            android:textColor="@color/primary"
+            android:textSize="16sp" />
     </ScrollView>
 
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/tab_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:tabBackground="@color/primary"
+        app:tabGravity="fill"
+        app:tabSelectedTextColor="@color/white"
+        app:tabIconTint="@color/primary"
+        app:tabIndicator="@color/colorAccent"
+        app:tabMode="fixed" />
+
+    <androidx.viewpager.widget.ViewPager
+        android:id="@+id/view_pager"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="@color/colorAccent" />
 
 </FrameLayout>
