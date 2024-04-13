@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "1059825004111",
+    "firebase_url": "https://stockanalytica-8ea8d-default-rtdb.firebaseio.com",
+    "project_id": "stockanalytica-8ea8d",
+    "storage_bucket": "stockanalytica-8ea8d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1059825004111:android:02716f64553ea3e98bc43a",
+        "android_client_info": {
+          "package_name": "com.example.stockanalytica"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA8Ck-ZJuOIGhEmlCTarRSzhM1hZtc9Cew"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
