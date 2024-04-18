@@ -10,6 +10,12 @@ import pandas as pd
 import numpy as np
 import requests
 import traceback
+import yfinance as yf
+from pypfopt import HRPOpt
+from pypfopt.discrete_allocation import DiscreteAllocation, get_latest_prices
+from pypfopt.expected_returns import mean_historical_return
+from pypfopt.efficient_frontier import EfficientCVaR, EfficientFrontier
+from pypfopt.risk_models import CovarianceShrinkage
 
 app = Flask(__name__)
 app.config['MONGO_URI'] = "mongodb://localhost:27017/bss"  # MongoDB URI
@@ -173,7 +179,62 @@ def predict():
     else:
         return jsonify({'message': 'Prediction Model not Found'})
 
+@app.route('/portfolio_optimization', methods=['GET'])
+def optimize():
+    # ticks = ["MRNA","PFE","JNJ","GOOGL","META","AAPL","COST","WMT",'KR',"JPM","BAC","HSBC"]
+    method = request.args.get('method')
 
+    money_invested = float(request.args.get('value')) or 100000
+
+    ticks = request.args.get('ticks')
+    ticks = ticks.split(',')
+    print(ticks, type(ticks))
+
+
+    portfolio = yf.download(ticks)
+    portfolio = portfolio['Close']
+    portfolio = portfolio[-1::-1]
+    portfolio = portfolio[0:100]
+
+    if method == 'hrp':
+        returns = portfolio.pct_change().dropna()
+
+        hrp = HRPOpt(returns)
+        hrp_weights = hrp.optimize()
+
+        hrp.portfolio_performance(verbose=True)
+
+        latest_prices = get_latest_prices(portfolio)
+        discrete_allocation_hrp = DiscreteAllocation(hrp_weights, latest_prices, total_portfolio_value = money_invested)
+
+        allocation, leftover = discrete_allocation_hrp.greedy_portfolio()
+
+    elif method == 'mcvar':
+        returns = mean_historical_return(portfolio)
+        covariance = portfolio.cov()
+        ef_cvar = EfficientCVaR(returns, covariance)
+        cvar_weights = ef_cvar.min_cvar()
+
+        latest_prices = get_latest_prices(portfolio)
+        discrete_allocation_cvar = DiscreteAllocation(cvar_weights, latest_prices, total_portfolio_value = money_invested)
+
+        allocation, leftover = discrete_allocation_cvar.greedy_portfolio()
+
+    else:
+        returns = mean_historical_return(portfolio)
+        covariance_shrinkage = CovarianceShrinkage(portfolio).ledoit_wolf()
+
+        ef = EfficientFrontier(returns, covariance_shrinkage)
+        weights = ef.max_sharpe()
+
+        ef.portfolio_performance(verbose=True)
+
+        latest_prices = get_latest_prices(portfolio)
+        discrete_allocation = DiscreteAllocation(weights, latest_prices, total_portfolio_value = money_invested)
+
+        allocation, leftover = discrete_allocation.greedy_portfolio()
+
+    return jsonify({'Allocation': allocation,'Leftover':"${:.2f}".format(leftover)})
 
 if __name__ == '__main__':
     model_file_name = "stock_price/mymodel.keras"
