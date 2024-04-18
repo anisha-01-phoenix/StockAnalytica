@@ -1,14 +1,29 @@
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 from flask_pymongo import PyMongo
 from werkzeug.security import generate_password_hash, check_password_hash
-from keras.models import load_model
 import tensorflow as tf
 import sys
+import joblib
+import json
+from json import JSONEncoder
+import pandas as pd
+import numpy as np
+import requests
+import traceback
 
 app = Flask(__name__)
 app.config['MONGO_URI'] = "mongodb://localhost:27017/bss"  # MongoDB URI
 mongo = PyMongo(app)
 
+url = 'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol='
+api_key = '&apikey='
+api_keys = ['RNH7ARGY3ITHRCKH', 'F3TTN5YO8MQDWM43']
+
+class NumpyArrayEncoder(JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, np.ndarray):
+            return obj.tolist()
+        return JSONEncoder.default(self, obj)
 
 @app.route("/")
 def hello():
@@ -112,34 +127,67 @@ def stocksBought():
     except:
         return 'some error occurred', 400 
 
-@app.route('/predict', methods=['POST']) # Your API endpoint URL would consist /predict
+@app.route('/predict', methods=['GET'])
 def predict():
     if model:
-        print("Model exsits")
-        # try:
-        #     json_ = request.json
-        #     query = query.reindex(columns=model_columns, fill_value=0)
+        try:
+            sc = joblib.load('stock_price/scaler.sav')
 
-        #     prediction = list(lr.predict(query))
+            dataset_columns = ['Open', 'High', 'Low', 'Close', 'Volume']
 
-        #     return jsonify({'prediction': prediction})
+            symbol = request.args.get('symbol')
 
-        # except:
+            for key in api_keys:
+                try:
+                    dataset = requests.get(url+symbol+api_key+key)
+                    break
+                except:
+                    continue
 
-        #     return jsonify({'trace': traceback.format_exc()})
+            dataset = dataset.json()
+            dataset = dataset['Time Series (Daily)']
+            dataset = pd.DataFrame.from_dict(dataset, orient='index')
+            dataset.columns = dataset_columns
+
+            dataset = dataset['Close']
+            dataset = np.array(dataset)[-1::-1]
+
+            transformed_values = sc.transform(dataset.reshape(-1, 1))
+
+            for j in range(7):
+                predicted_values = model.predict(transformed_values[-100:, 0].reshape(1, 100, 1))
+                transformed_values = np.append(transformed_values, predicted_values.reshape(1)).reshape(-1, 1)
+
+            prediction = sc.inverse_transform(transformed_values[:, 0].reshape(-1, 1))
+            prediction = prediction[-7:, 0]
+            prediction = np.round(prediction, 4)
+
+            numpyData = {"array": prediction}
+            encodedNumpyData = json.dumps(numpyData, cls=NumpyArrayEncoder)
+
+            return jsonify(encodedNumpyData)
+
+        except:
+
+            return jsonify({'trace': traceback.format_exc()})
     else:
-        print ('Train the model first')
-        return ('No model here to use')
+        return jsonify({'message': 'Prediction Model not Found'})
 
 
 
 if __name__ == '__main__':
-    # model_file_name = "stock_price/mymodel.keras"
+    model_file_name = "stock_price/mymodel.keras"
 
-    # try:
-    #     port = int(sys.argv[1]) # This is for a command-line argument
-    # except:
-    #     port = 12345 # If you don't provide any port then the port will be set to 12345
-    # model = tf.keras.models.load_model(model_file_name) # Load "model.pkl"
-    # print ('Model loaded')
-    app.run( debug=True)
+    try:
+        port = int(sys.argv[1])
+    except:
+        port = 12345
+
+    try:
+        model = tf.keras.models.load_model(model_file_name)
+        print ('Model loaded')
+    except:
+        print("Error in Loading Model")
+
+
+    app.run(port=port, debug=True)
