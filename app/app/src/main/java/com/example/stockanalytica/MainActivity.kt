@@ -29,7 +29,7 @@ class MainActivity : AppCompatActivity() {
                 R.id.home -> replaceFragment(HomeFragment())
                 R.id.stocks -> replaceFragment(StockAnalysisFragment())
                 R.id.portfolio -> replaceFragment(PortfolioOptimisationFragment())
-                R.id.profile -> replaceFragment(ProfileFragment())
+//                R.id.profile -> replaceFragment(ProfileFragment())
 
                 else -> {
                 }

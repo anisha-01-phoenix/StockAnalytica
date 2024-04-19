@@ -71,6 +71,31 @@ dependencies {
     implementation(libs.androidx.foundation.android)
     implementation(libs.androidx.material3.android)
     implementation(libs.firebase.auth)
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation("com.squareup.okhttp3:okhttp:4.9.0")
+
+    // Gson for JSON serialization/deserialization
+    implementation("com.google.code.gson:gson:2.8.8")
+
+    // ViewModel and LiveData for MVVM architecture
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.0")
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.4.0")
+
+    // RecyclerView for displaying lists
+    implementation("androidx.recyclerview:recyclerview:1.2.1")
+
+    // Picasso for image loading
+    implementation("com.squareup.picasso:picasso:2.8")
+
+    // Glide for image loading
+    implementation("com.github.bumptech.glide:glide:4.12.0")
+//    kapt("com.github.bumptech.glide:compiler:4.12.0")
+
+    // Coroutines for handling asynchronous operations
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.2")
+    implementation(libs.support.recyclerview.v7)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
