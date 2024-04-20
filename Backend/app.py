@@ -1,8 +1,16 @@
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 from flask_pymongo import PyMongo
+from pymongo.mongo_client import MongoClient
+from pymongo.server_api import ServerApi
 from werkzeug.security import generate_password_hash, check_password_hash
 import tensorflow as tf
 import sys
+import os
+import re
+from bson import json_util
+from bson.json_util import dumps
+from db import get_db
+from dotenv import load_dotenv
 import joblib
 import json
 from json import JSONEncoder
@@ -18,12 +26,19 @@ from pypfopt.efficient_frontier import EfficientCVaR, EfficientFrontier
 from pypfopt.risk_models import CovarianceShrinkage
 
 app = Flask(__name__)
-app.config["MONGO_URI"] = "mongodb://localhost:27017/bss"  # MongoDB URI
-mongo = PyMongo(app)
+# app.config["MONGO_URI"] = "mongodb://localhost:27017/bss"  # MongoDB URI
+# mongo = PyMongo(app)
+
+EMAIL_REGEX = r'^[\w\.-]+@[a-zA-Z\d\.-]+\.[a-zA-Z]{2,}$'
+load_dotenv()
 
 url = "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol="
 api_key = "&apikey="
-api_keys = ["RNH7ARGY3ITHRCKH", "F3TTN5YO8MQDWM43"]
+api_key_1 = os.getenv('API_KEY_1')
+api_key_2 = os.getenv('API_KEY_2')
+api_keys = [api_key_1, api_key_2]
+
+db = get_db()
 
 
 class NumpyArrayEncoder(JSONEncoder):
@@ -31,6 +46,9 @@ class NumpyArrayEncoder(JSONEncoder):
         if isinstance(obj, np.ndarray):
             return obj.tolist()
         return JSONEncoder.default(self, obj)
+    
+def parse_json(data):
+    return json.loads(json_util.dumps(data))
 
 
 @app.route("/")
@@ -40,15 +58,19 @@ def hello():
 
 @app.route("/register", methods=["POST"])
 def signup():
-
     try:
-        username = request.form["username"]  # Fields to be added
-        email = request.form["email"]
-        password = request.form["password"]
+        data = request.json
+        username = data.get('username')
+        email = data.get('email')
+        password = data.get('password')
         hashed_password = generate_password_hash(password)
 
-        if mongo.db.users.find_one({"username": username}):
-            return "Username already exists! Please use another username.", 400
+        if db.users.find_one({"username": username}):
+            return jsonify({'message': 'Username already exists'}), 400
+        elif not re.match(EMAIL_REGEX, email):
+            return jsonify({'message': 'Invalid email format'}), 400
+        elif len(password) < 6:
+            return jsonify({'message': 'Password must be at least 6 characters long'}), 400
         else:
             user_data = {
                 "username": username,
@@ -56,36 +78,40 @@ def signup():
                 "password": hashed_password,
                 "stocks": [],
             }
-            mongo.db.users.insert_one(user_data)
-            return "Signup successful!", 200
+            db.users.insert_one(user_data)
+            return jsonify({'message': 'User registered successfully', 'user': parse_json(user_data)}), 200
 
-    except:
-        return "some error occurred", 400
+    except Exception as e:
+        print("An error occurred:", str(e))
+        return jsonify({'message': 'Error in Authentication'}), 400
 
 
 @app.route("/login", methods=["POST"])
 def login():
     try:
-        username = request.form["username"]
-        password = request.form["password"]
-        user = mongo.db.users.find_one({"username": username})
-
+        data = request.json
+        username = data.get('username')
+        password = data.get('password')
+        user = db.users.find_one({"username": username})
+        
         if user and check_password_hash(user["password"], password):
-            return "login successfull", 200
+            # print (user)
+            return jsonify({'message': 'Login successful', 'user': parse_json(user)}), 200
         else:
-            return "login unsuccessfull", 400
-    except:
-        return "some error occurred", 400
-
+            return jsonify({'message': 'Invalid credentials'}), 401
+    except Exception as e:
+        print("An error occurred:", str(e))
+        return jsonify({'message': 'Error in Authentication'}), 400
 
 @app.route("/buy", methods=["POST"])
 def buyStocks():
     try:
-        username = request.form["username"]
-        stockName = request.form["stockName"]
-        quantity = request.form["quantity"]
-        price = request.form["price"]
-        user = mongo.db.users.find_one({"username": username}, {"stocks": 1, "_id": 0})
+        data = request.json
+        username = data.get('username')
+        stockName = data.get('stockName')
+        quantity = data.get('quantity')
+        price = data.get('price')
+        user = db.users.find_one({"username": username}, {"stocks": 1, "_id": 0})
 
         stocks = user["stocks"]
         stock = {"stockName": stockName, "quantity": quantity, "price": price}
@@ -100,43 +126,48 @@ def buyStocks():
         if t == 0:
             stocks.append(stock)
         print(stocks)
-        mongo.db.users.update_one({"username": username}, {"$set": {"stocks": stocks}})
-        return "stocks bought successfully", 200
+        db.users.update_one({"username": username}, {"$set": {"stocks": stocks}})
+        return jsonify({'message': 'Stocks bought successfully', 'stocks': parse_json(stocks)}), 200
 
-    except:
-        return "some error occurred", 400
+    except Exception as e:
+        print("An error occurred:", str(e))
+        return jsonify({'message': 'Error'}), 400
 
 
 @app.route("/details", methods=["POST"])
 def userDetails():
     try:
-        username = request.form["username"]
-        user = mongo.db.users.find_one(
+        data = request.json
+        username = data.get('username')
+        user = db.users.find_one(
             {"username": username}, {"_id": 0, "password": 0}
         )
 
         if user:
-            return user, 200
+            return jsonify({'user': parse_json(user)}), 200
         else:
-            return "no user found", 404
-    except:
-        return "some error occurred", 400
+            return jsonify({'message', 'No User found'}), 404
+    except Exception as e:
+        print("An error occurred:", str(e))
+        return jsonify({'message': 'Error'}), 400
 
 
 @app.route("/stocks", methods=["POST"])
 def stocksBought():
     try:
-        username = request.form["username"]
-        stocks = mongo.db.users.find_one(
+        data = request.json
+        username = data.get('username')
+        stocks = db.users.find_one(
             {"username": username}, {"stocks": 1, "_id": 0}
         )
 
         if stocks:
-            return stocks, 200
+            return jsonify({'stocks': parse_json(stocks)}), 200
         else:
-            return "no user found", 404
-    except:
-        return "some error occurred", 400
+            return jsonify({'message', 'No User found'}), 404
+    except Exception as e:
+        print("An error occurred:", str(e))
+        return jsonify({'message': 'Error'}), 400
 
 
 @app.route("/predict", methods=["GET"])
@@ -184,7 +215,6 @@ def predict():
             return jsonify(encodedNumpyData)
 
         except:
-
             return jsonify({"trace": traceback.format_exc()})
     else:
         return jsonify({"message": "Prediction Model not Found"})
@@ -259,7 +289,7 @@ if __name__ == "__main__":
     try:
         port = int(sys.argv[1])
     except:
-        port = 12345
+        port = 5000
 
     try:
         model = tf.keras.models.load_model(model_file_name)
