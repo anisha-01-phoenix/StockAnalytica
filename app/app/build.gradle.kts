@@ -95,6 +95,7 @@ dependencies {
     // Coroutines for handling asynchronous operations
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.2")
     implementation(libs.support.recyclerview.v7)
+    implementation(libs.firebase.database.ktx)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

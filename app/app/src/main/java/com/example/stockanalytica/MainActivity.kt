@@ -1,5 +1,6 @@
 package com.example.stockanalytica
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
@@ -12,14 +13,17 @@ import com.example.stockanalytica.fragments.HomeFragment
 import com.example.stockanalytica.fragments.PortfolioOptimisationFragment
 import com.example.stockanalytica.fragments.ProfileFragment
 import com.example.stockanalytica.fragments.StockAnalysisFragment
+import com.google.firebase.auth.FirebaseAuth
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
+    private lateinit var auth: FirebaseAuth
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         supportActionBar?.hide()
         setContentView(binding.root)
+        auth = FirebaseAuth.getInstance()
         setSupportActionBar(binding.toolbar)
 
         replaceFragment(HomeFragment())
@@ -47,9 +51,12 @@ class MainActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.logout -> {
-                //logout
+                auth.signOut()
+                startActivity(Intent(this, LoginActivity::class.java))
+                finish()
                 true
             }
+
             else -> super.onOptionsItemSelected(item)
         }
     }
