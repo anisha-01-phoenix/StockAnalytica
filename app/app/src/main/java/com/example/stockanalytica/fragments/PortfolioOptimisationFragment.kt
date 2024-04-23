@@ -1,6 +1,5 @@
 package com.example.stockanalytica.fragments
 
-import android.app.DatePickerDialog
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
@@ -8,7 +7,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
-import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Spinner
@@ -16,22 +14,17 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.stockanalytica.R
-import com.example.stockanalytica.databinding.FragmentPortfolioOptimisationBinding
-import com.example.stockanalytica.model.Value
-import com.example.stockanalytica.repository.PortfolioRepository
 import com.example.stockanalytica.viewmodels.PortfolioViewModel
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
-import com.github.mikephil.charting.formatter.ValueFormatter
-import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.Locale
+import com.github.mikephil.charting.utils.EntryXComparator
+import java.util.Collections
+
 
 class PortfolioOptimisationFragment : Fragment() {
     private lateinit var viewModel: PortfolioViewModel
@@ -71,32 +64,38 @@ class PortfolioOptimisationFragment : Fragment() {
             val window = amount.text.toString()
             viewModel.fetchIndicatorData(indicator, ticker, series, timespan, window.toInt())
             viewModel.portfolio.observe(viewLifecycleOwner) { response ->
-                val chartResponse = response.results.values
-                val entries = ArrayList<Entry>()
-                val seenTimestamps = HashSet<Long>()
+                response.results?.values?.let { chartResponse ->
+                    val entries = ArrayList<Entry>()
+                    val seenTimestamps = HashSet<Long>()
 
-                for (value in chartResponse) {
-                    if (value.timestamp < 0 || value.value.isNaN() || value.value.isInfinite()) {
-                        println("Invalid data point: timestamp=${value.timestamp}, value=${value.value}")
-                    } else if (seenTimestamps.add(value.timestamp)) { // returns false if the set already contains the timestamp
-                        entries.add(Entry(value.timestamp.toFloat(), value.value.toFloat()))
+                    for (value in chartResponse) {
+                        if (value.timestamp < 0 || value.value.isNaN() || value.value.isInfinite()) {
+                            println("Invalid data point: timestamp=${value.timestamp}, value=${value.value}")
+                        } else if (seenTimestamps.add(value.timestamp)) {
+                            entries.add(Entry(value.timestamp.toFloat(), value.value.toFloat()))
+                        } else {
+                            println("Duplicate timestamp ignored: ${value.timestamp}")
+                        }
+                    }
+
+                    if (entries.isNotEmpty()) {
+                        Log.i("response", entries.toString())
+                        try {
+                            Collections.sort(entries, EntryXComparator())
+                            drawGraph(entries)
+                        } catch (e: Exception) {
+                            Log.e("error", "Error in processing entries: ${e.message}")
+                        }
                     } else {
-                        println("Duplicate timestamp ignored: ${value.timestamp}")
+                        Log.i(
+                            "PortfolioOptimization",
+                            "No valid entries to draw or no data available for charting"
+                        )
+                        Toast.makeText(context, "Entries Not Available", Toast.LENGTH_SHORT).show()
                     }
-                }
-                if (entries.isNotEmpty()) {
-                    Log.i("response", entries.toString())
-                    try {
-                        drawGraph(entries)
-                    } catch (e: NegativeArraySizeException)
-                    {
-                        Log.e("error", " Negative Array SIze")
-                    }
-                } else {
-                    Log.i(
-                        "PortfolioOptimization",
-                        "No valid entries to draw or no data available for charting"
-                    )
+                } ?: run {
+                    Log.e("PortfolioOptimization", "chartResponse is null")
+                    Toast.makeText(context, "Data Not Available", Toast.LENGTH_SHORT).show()
                 }
             }
 

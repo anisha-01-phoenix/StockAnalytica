@@ -47,7 +47,7 @@ class HomeFragment : Fragment() {
                 val ticker = parent.getItemAtPosition(position).toString()
                 selectedCompany.text = ticker
                 viewModel.fetchNews(ticker)
-                progress.visibility = View.GONE
+//                progress.visibility = View.GONE
             }
 
             override fun onNothingSelected(parent: AdapterView<*>) {
@@ -60,6 +60,7 @@ class HomeFragment : Fragment() {
                 recyclerView.adapter = NewsAdapter(newsList)
             } else {
                 Log.e("HomeFragment", "newsList is null")
+                Toast.makeText(activity, "No Data Available", Toast.LENGTH_LONG).show()
             }
             progress.visibility = View.GONE
         }
