@@ -58,6 +58,7 @@ class LoginActivity : AppCompatActivity() {
                                             Toast.LENGTH_SHORT
                                         ).show()
                                         startActivity(Intent(this@LoginActivity, MainActivity::class.java))
+                                        finish()
                                     } else {
                                         Toast.makeText(
                                             this@LoginActivity,

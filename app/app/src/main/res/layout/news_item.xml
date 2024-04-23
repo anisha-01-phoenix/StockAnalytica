@@ -33,21 +33,28 @@
 
         <ImageView
             android:id="@+id/news_image"
-            android:layout_width="30dp"
-            android:layout_height="30dp"/>
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_gravity="center" />
 
-       <com.google.android.material.chip.ChipGroup
-           android:layout_width="match_parent"
-           android:layout_height="wrap_content">
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/chip_group"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp">
+            <!-- Chips will be added dynamically in the adapter -->
+        </com.google.android.material.chip.ChipGroup>
 
-           <com.google.android.material.chip.Chip
-               android:layout_width="wrap_content"
-               android:layout_height="wrap_content"
-               app:chipBackgroundColor="@color/colorAccent"
-               app:chipCornerRadius="7dp"/>
-
-       </com.google.android.material.chip.ChipGroup>
-
-
+        <Button
+            android:id="@+id/read_more_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:background="@android:color/transparent"
+            android:contextClickable="true"
+            android:fontFamily="@font/montserrat_italic"
+            android:padding="7dp"
+            android:text="READ MORE"
+            android:textColor="@android:color/holo_purple" />
     </LinearLayout>
 </androidx.cardview.widget.CardView>

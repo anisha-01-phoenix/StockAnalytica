@@ -66,6 +66,7 @@ class SignupActivity : AppCompatActivity() {
                                 Toast.makeText(this, "Registration successful!", Toast.LENGTH_SHORT)
                                     .show()
                                 startActivity(Intent(this, MainActivity::class.java))
+                                finish()
                             } else {
                                 Toast.makeText(this, "Failed to save username.", Toast.LENGTH_SHORT)
                                     .show()

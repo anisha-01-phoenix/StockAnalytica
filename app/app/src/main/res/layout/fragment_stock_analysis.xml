@@ -1,60 +1,116 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white"
+    android:padding="2dp"
     tools:context=".fragments.StockAnalysisFragment">
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/uploadButton"
+    <TextView
+        android:id="@+id/textView6"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="16dp"
-        android:backgroundTint="@color/primary"
-        android:contextClickable="true"
-        android:tint="@color/white"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.9"
-        app:srcCompat="@drawable/upload" />
+        android:text="Select the Ticker:"
+        android:layout_marginTop="10dp"
+        android:fontFamily="@font/montserrat_semibold"
+        android:padding="7dp"
+        android:textColor="@color/black"
+        android:textSize="16sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-    <ScrollView
-        android:id="@+id/scroll_view"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1">
+    <LinearLayout
+        android:id="@+id/linearLayout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/edittext_bg"
+        android:orientation="horizontal"
+        android:weightSum="1.5"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/textView6"
+        app:layout_constraintTop_toTopOf="parent">
 
         <TextView
-            android:id="@+id/uploaded_data_text"
-            android:layout_width="match_parent"
+            android:id="@+id/ticker_label_stock"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:padding="16dp"
-            android:text="STOCK DATA"
+            android:layout_weight="1"
+            android:padding="10dp"
             android:textColor="@color/primary"
-            android:textSize="16sp" />
-    </ScrollView>
+            android:textSize="14sp" />
 
-    <com.google.android.material.tabs.TabLayout
-        android:id="@+id/tab_layout"
+        <androidx.appcompat.widget.AppCompatSpinner
+            android:id="@+id/ticker_spinner_stock"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.5"
+            android:backgroundTint="@color/primary"
+            android:entries="@array/company_options" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/date_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:fontFamily="@font/montserrat_semibold"
+        android:padding="7dp"
+        android:text="Select Date:"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        android:textColor="@color/black"
+        android:textSize="16sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout" />
+
+    <EditText
+        android:id="@+id/date_input"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/edittext_bg"
+        android:drawableEnd="@drawable/ic_calendar"
+        android:focusable="false"
+        android:hint="YYYY-MM-DD"
+        android:inputType="none"
+        android:padding="7dp"
+        android:textColor="@color/black"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/date_label"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/submit_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:tabBackground="@color/primary"
-        app:tabGravity="fill"
-        app:tabSelectedTextColor="@color/white"
-        app:tabIconTint="@color/primary"
-        app:tabIndicator="@color/colorAccent"
-        app:tabMode="fixed" />
+        android:layout_margin="16dp"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/gradient_bg"
+        android:backgroundTint="#512C44"
+        android:fontFamily="@font/montserrat_semibold"
+        android:text="Check Stock Details"
+        android:textColor="@color/white"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/date_input" />
 
-    <androidx.viewpager.widget.ViewPager
-        android:id="@+id/view_pager"
+    <TableLayout
+        android:id="@+id/response_table"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:background="@color/colorAccent" />
+        android:layout_height="wrap_content"
+        android:layout_margin="7dp"
+        android:layout_marginTop="14dp"
+        android:backgroundTint="@color/primaryDark"
+        android:gravity="center"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/submit_button">
 
-</FrameLayout>
+    </TableLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

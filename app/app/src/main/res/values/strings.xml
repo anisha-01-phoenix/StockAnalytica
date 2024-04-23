@@ -9,8 +9,8 @@
         <item>MRNA</item>
         <item>PFE</item>
         <item>JNJ</item>
-        <item>GOOGL</item>
-        <item>FB</item>
+        <item>IBM</item>
+        <item>META</item>
         <item>AAPL</item>
         <item>COST</item>
         <item>WMT</item>
@@ -24,6 +24,30 @@
         <item>Mean Variance Method</item>
         <item>HRP Method</item>
         <item>mCVAR Method</item>
+    </string-array>
+
+    <string-array name="timespan_options">
+        <item>minute</item>
+        <item>hour</item>
+        <item>day</item>
+        <item>week</item>
+        <item>month</item>
+        <item>quarter</item>
+        <item>year</item>
+    </string-array>
+
+    <string-array name="series_type_options">
+        <item>open</item>
+        <item>close</item>
+        <item>high</item>
+        <item>low</item>
+    </string-array>
+
+    <string-array name="indicator_options">
+        <item>sma</item>
+        <item>ema</item>
+        <item>macd</item>
+        <item>rsi</item>
     </string-array>
 
 </resources>

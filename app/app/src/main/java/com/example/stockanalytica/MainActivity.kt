@@ -53,7 +53,6 @@ class MainActivity : AppCompatActivity() {
             R.id.logout -> {
                 auth.signOut()
                 startActivity(Intent(this, LoginActivity::class.java))
-                finish()
                 true
             }
 
