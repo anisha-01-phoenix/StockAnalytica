@@ -3,7 +3,7 @@ import firebase from "firebase/app";
 
 import Leftbar from "../Elements/leftbar";
 import Topbar from "../Elements/topbar";
-import {relDiff} from "../helpers.js";
+import { relDiff } from "../helpers.js";
 import Loader from "../Elements/Loader";
 
 let difference = [],
@@ -38,24 +38,24 @@ export default class portfolio extends React.Component {
   getLatestPrice(symbol, i) {
     const lastPrice = `https://cloud.iexapis.com/stable/stock/${symbol}/quote?displayPercent=true&token=${process.env.REACT_APP_IEX_KEY_2}`;
     fetch(lastPrice)
-      .then(res => res.json())
-      .then(result => {
+      .then((res) => res.json())
+      .then((result) => {
         value[parseInt(i)] = parseFloat(
-          Number(shares[parseInt(i)] * result.latestPrice).toFixed(2),
+          Number(shares[parseInt(i)] * result.latestPrice).toFixed(2)
         );
       })
       .then(() => {
         difference[parseInt(i)] =
           relDiff(
             parseFloat(value[parseInt(i)]),
-            parseFloat(moneyPaid[parseInt(i)]),
+            parseFloat(moneyPaid[parseInt(i)])
           ).toFixed(2) + "%";
         change[parseInt(i)] =
           "$" +
           parseFloat(
             parseFloat(
-              value[parseInt(i)] - parseFloat(moneyPaid[parseInt(i)]),
-            ).toFixed(2),
+              value[parseInt(i)] - parseFloat(moneyPaid[parseInt(i)])
+            ).toFixed(2)
           );
         if (value[parseInt(i)] > moneyPaid[parseInt(i)]) {
           difference[parseInt(i)] = `+${difference[parseInt(i)]}`;
@@ -98,9 +98,9 @@ export default class portfolio extends React.Component {
       .doc(user)
       .collection("stocks")
       .get()
-      .then(snapshot => {
+      .then((snapshot) => {
         if (snapshot.docs.length !== 0) {
-          snapshot.forEach(doc => {
+          snapshot.forEach((doc) => {
             position.push(doc.id);
             symbols.push(doc.data().symbol);
             shares.push(doc.data().shares);
@@ -151,7 +151,7 @@ export default class portfolio extends React.Component {
         .doc(position)
         .delete()
         .then(
-          function() {
+          function () {
             if (this._isMounted)
               this.setState({
                 funds:
@@ -172,9 +172,9 @@ export default class portfolio extends React.Component {
                 }
               });
             this.getPositions();
-          }.bind(this),
+          }.bind(this)
         )
-        .catch(function(error) {
+        .catch(function (error) {
           console.error(error);
         });
     }
@@ -186,9 +186,11 @@ export default class portfolio extends React.Component {
      * check if market opened
      */
 
-    fetch(`https://financialmodelingprep.com/api/v3/is-the-market-open?apikey=${process.env.REACT_APP_FMP_KEY}`)
-      .then(res => res.json())
-      .then(result => {
+    fetch(
+      `https://financialmodelingprep.com/api/v3/is-the-market-open?apikey=${process.env.REACT_APP_FMP_KEY}`
+    )
+      .then((res) => res.json())
+      .then((result) => {
         if (this._isMounted) {
           this.setState({
             marketStatus: result.isTheStockMarketOpen,
@@ -205,15 +207,15 @@ export default class portfolio extends React.Component {
       .collection("users")
       .doc(user)
       .onSnapshot(
-        function(doc) {
+        function (doc) {
           if (typeof doc.data() !== "undefined" && this._isMounted) {
             this.setState({
               funds: doc.data()["currentfunds"],
             });
           }
-        }.bind(this),
+        }.bind(this)
       );
-    document.querySelector(".hamburger").addEventListener("click", e => {
+    document.querySelector(".hamburger").addEventListener("click", (e) => {
       e.currentTarget.classList.toggle("is-active");
     });
   }
@@ -227,7 +229,7 @@ export default class portfolio extends React.Component {
           <div className="alertMessage">
             Market is currently closed{" "}
             <button
-              style={{margin: "20px"}}
+              style={{ margin: "20px" }}
               className="stockPage__buy-button"
               onClick={() => {
                 if (this._isMounted) {
@@ -235,7 +237,8 @@ export default class portfolio extends React.Component {
                     error: false,
                   });
                 }
-              }}>
+              }}
+            >
               CONFIRM
             </button>
           </div>
@@ -260,19 +263,21 @@ export default class portfolio extends React.Component {
                     <tr key={index}>
                       <td>{val}</td>
                       <td>{shares[parseInt(index)]}</td>
-                      <td style={{color: color[parseInt(index)]}}>
+                      <td style={{ color: color[parseInt(index)] }}>
                         {difference[parseInt(index)]}
                       </td>
-                      <td style={{color: color[parseInt(index)]}}>
+                      <td style={{ color: color[parseInt(index)] }}>
                         {change[parseInt(index)]}
                       </td>
                       <td>${value[parseInt(index)]}</td>
                       <td>
-                        <button class="stockPage__sell-button"  onClick={() => {
+                        <button
+                          className="stockPage__sell-button"
+                          onClick={() => {
                             if (this.state.marketStatus) {
                               this.handleStockSell(
                                 position[parseInt(index)],
-                                index,
+                                index
                               );
                             } else {
                               if (this._isMounted) {
@@ -281,7 +286,10 @@ export default class portfolio extends React.Component {
                                 });
                               }
                             }
-                          }}>SELL</button>
+                          }}
+                        >
+                          SELL
+                        </button>
                       </td>
                     </tr>
                   );
