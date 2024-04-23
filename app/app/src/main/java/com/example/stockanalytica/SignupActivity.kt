@@ -1,7 +1,9 @@
 package com.example.stockanalytica
 
 import android.content.Intent
+import android.opengl.Visibility
 import android.os.Bundle
+import android.view.View
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -41,14 +43,17 @@ class SignupActivity : AppCompatActivity() {
     }
 
     private fun checkUsernameUnique(username: String, email: String, password: String) {
+        binding.pb1.visibility= View.VISIBLE
         val usernameRef = database.getReference("usernames").child(username)
         usernameRef.get().addOnSuccessListener { dataSnapshot ->
             if (dataSnapshot.exists()) {
+                binding.pb1.visibility= View.GONE
                 Toast.makeText(this, "Username is already taken.", Toast.LENGTH_SHORT).show()
             } else {
                 registerUser(username, email, password)
             }
         }.addOnFailureListener {
+            binding.pb1.visibility= View.GONE
             Toast.makeText(this, "Failed to check username uniqueness.", Toast.LENGTH_SHORT).show()
         }
     }
@@ -65,15 +70,18 @@ class SignupActivity : AppCompatActivity() {
                             if (task.isSuccessful) {
                                 Toast.makeText(this, "Registration successful!", Toast.LENGTH_SHORT)
                                     .show()
+                                binding.pb1.visibility= View.GONE
                                 startActivity(Intent(this, MainActivity::class.java))
                                 finish()
                             } else {
+                                binding.pb1.visibility= View.GONE
                                 Toast.makeText(this, "Failed to save username.", Toast.LENGTH_SHORT)
                                     .show()
                             }
                         }
                 }
             } else {
+                binding.pb1.visibility= View.GONE
                 Toast.makeText(
                     this,
                     "Authentication failed: ${task.exception?.message}",

@@ -2,6 +2,7 @@ package com.example.stockanalytica
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -41,6 +42,7 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun loginUser(username: String, password: String) {
+        binding.pb2.visibility= View.VISIBLE
         // Retrieve email from the database using the username
         val databaseRef = FirebaseDatabase.getInstance().getReference("Users")
         databaseRef.orderByChild("username").equalTo(username)
@@ -57,9 +59,11 @@ class LoginActivity : AppCompatActivity() {
                                             "Login successful",
                                             Toast.LENGTH_SHORT
                                         ).show()
+                                        binding.pb2.visibility= View.GONE
                                         startActivity(Intent(this@LoginActivity, MainActivity::class.java))
                                         finish()
                                     } else {
+                                        binding.pb2.visibility= View.GONE
                                         Toast.makeText(
                                             this@LoginActivity,
                                             "Login failed: ${task.exception?.message}",
@@ -72,13 +76,16 @@ class LoginActivity : AppCompatActivity() {
                             "Failed to retrieve email",
                             Toast.LENGTH_SHORT
                         ).show()
+                        binding.pb2.visibility= View.GONE
                     } else {
+                        binding.pb2.visibility= View.GONE
                         Toast.makeText(this@LoginActivity, "Username not found", Toast.LENGTH_SHORT)
                             .show()
                     }
                 }
 
                 override fun onCancelled(error: DatabaseError) {
+                    binding.pb2.visibility= View.GONE
                     Toast.makeText(
                         this@LoginActivity,
                         "Database error: ${error.message}",

@@ -12,6 +12,7 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ProgressBar
 import android.widget.Spinner
 import android.widget.TableLayout
 import android.widget.TableRow
@@ -37,6 +38,7 @@ class StockAnalysisFragment : Fragment() {
     private lateinit var response_table: TableLayout
     private lateinit var submit_button: Button
     private lateinit var ticker_label: TextView
+    private lateinit var progress: ProgressBar
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -46,6 +48,7 @@ class StockAnalysisFragment : Fragment() {
         date_input = view.findViewById(R.id.date_input)
         response_table = view.findViewById(R.id.response_table)
         submit_button = view.findViewById(R.id.submit_button)
+        progress = view.findViewById(R.id.pb4)
         ticker_label = view.findViewById(R.id.ticker_label_stock)
         return view
     }
@@ -80,22 +83,26 @@ class StockAnalysisFragment : Fragment() {
         setupDatePicker()
 
         submit_button.setOnClickListener {
+            progress.visibility=View.VISIBLE
             val selectedTicker = ticker_label.text.toString()
             val selectedDate = date_input.text.toString()
 
             if (validateInputs(selectedTicker, selectedDate)) {
                 val response = viewModel.fetchStockData(selectedTicker, selectedDate)
+                progress.visibility=View.GONE
             }
         }
         viewModel.stockData.observe(viewLifecycleOwner, Observer { stock ->
             stock?.let { displayStockData(it) } ?: run {
                 Toast.makeText(context, "Failed to retrieve data.", Toast.LENGTH_SHORT).show()
             }
+            progress.visibility=View.GONE
         })
 
         viewModel.errorMessage.observe(viewLifecycleOwner) { msg ->
             if (msg != null)
                 Toast.makeText(activity, msg, Toast.LENGTH_LONG).show()
+            progress.visibility=View.GONE
         }
     }
 
@@ -156,6 +163,7 @@ class StockAnalysisFragment : Fragment() {
     }
 
     private fun displayStockData(stock: StockResponse) {
+        progress.visibility=View.GONE
         Log.i("stock", stock.toString())
         response_table.visibility = View.VISIBLE
         response_table.removeAllViews()

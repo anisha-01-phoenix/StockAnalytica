@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Button
+import android.widget.EditText
 import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
@@ -44,7 +45,8 @@ class PortfolioOptimisationFragment : Fragment() {
     private lateinit var spinnerSeriesTypeLabel: TextView
     private lateinit var spinnerTimespanLabel: TextView
     private lateinit var spinnerTickerLabel: TextView
-    private lateinit var submit : Button
+    private lateinit var submit: Button
+    private lateinit var amount: EditText
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -53,6 +55,7 @@ class PortfolioOptimisationFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_portfolio_optimisation, container, false)
         viewModel = ViewModelProvider(this).get(PortfolioViewModel::class.java)
         chart = view.findViewById(R.id.chart)
+        amount = view.findViewById(R.id.amount_ET)
         submit = view.findViewById(R.id.buttonSubmit)
         setupSpinners(view)
         return view
@@ -65,50 +68,82 @@ class PortfolioOptimisationFragment : Fragment() {
             val ticker = spinnerTickerLabel.text.toString()
             val series = spinnerSeriesTypeLabel.text.toString()
             val timespan = spinnerTimespanLabel.text.toString()
-            viewModel.fetchIndicatorData(indicator,ticker,series,timespan)
+            val window = amount.text.toString()
+            viewModel.fetchIndicatorData(indicator, ticker, series, timespan, window.toInt())
             viewModel.portfolio.observe(viewLifecycleOwner) { response ->
                 val chartResponse = response.results.values
                 val entries = ArrayList<Entry>()
-                for (value in chartResponse.sortedBy { it.timestamp }) {
+                val seenTimestamps = HashSet<Long>()
+
+                for (value in chartResponse) {
                     if (value.timestamp < 0 || value.value.isNaN() || value.value.isInfinite()) {
                         println("Invalid data point: timestamp=${value.timestamp}, value=${value.value}")
+                    } else if (seenTimestamps.add(value.timestamp)) { // returns false if the set already contains the timestamp
+                        entries.add(Entry(value.timestamp.toFloat(), value.value.toFloat()))
+                    } else {
+                        println("Duplicate timestamp ignored: ${value.timestamp}")
                     }
-                    else
-                    entries.add(Entry(value.timestamp.toFloat(), value.value.toFloat()))
                 }
-                drawGraph(entries)
-                Log.i("response", entries.toString())
+                if (entries.isNotEmpty()) {
+                    Log.i("response", entries.toString())
+                    try {
+                        drawGraph(entries)
+                    } catch (e: NegativeArraySizeException)
+                    {
+                        Log.e("error", " Negative Array SIze")
+                    }
+                } else {
+                    Log.i(
+                        "PortfolioOptimization",
+                        "No valid entries to draw or no data available for charting"
+                    )
+                }
             }
 
             viewModel.errorMessage.observe(viewLifecycleOwner) { errorMsg ->
                 Toast.makeText(context, errorMsg, Toast.LENGTH_LONG).show()
             }
-//            setupObservers()
         }
     }
 
     private fun drawGraph(entries: ArrayList<Entry>) {
+        if (entries.isEmpty()) {
+            Log.e("drawGraph", "Empty entries. Cannot draw graph.")
+            return
+        }
+
+        // Create dataSet safely
         val dataSet = LineDataSet(entries, "Portfolio").apply {
             color = Color.RED
             valueTextColor = Color.BLACK
             lineWidth = 2f
             setDrawFilled(true)
-            val drawable = resources.getDrawable(R.drawable.gradient_chart_fill)
-            fillDrawable = drawable
+            fillDrawable = resources.getDrawable(R.drawable.gradient_chart_fill)
         }
         val lineData = LineData(dataSet)
-
         chart.data = lineData
         chart.description.isEnabled = false
+
         val xAxis = chart.xAxis
         xAxis.granularity = 1f  // Ensure granularity is positive and makes sense for your data
-        xAxis.axisMinimum = entries.minOf { it.x }  // Ensure axis minimum doesn't cause issues
-        xAxis.axisMaximum = entries.maxOf { it.x }  // Ensure axis maximum is correct
         xAxis.position = XAxis.XAxisPosition.BOTTOM
-        chart.setVisibleXRangeMinimum(1f)  // Set a reasonable minimum range
-        chart.invalidate()
 
+        // Safe assignment of min and max for x-axis
+//        val minX = entries.minOf { it.x }.coerceAtLeast(0f)
+//        val maxX = entries.maxOf { it.x }.coerceAtLeast(minX + 1f)  // Ensure maxX is at least slightly greater than minX
+//        chart.xAxis.axisMinimum = minX
+//        chart.xAxis.axisMaximum = maxX
+
+        // Safe assignment of min and max for y-axis
+//        val minY = entries.minOf { it.y }.coerceAtLeast(0f)
+//        val maxY = entries.maxOf { it.y } + 10  // Add some padding to maxY
+//        chart.axisLeft.axisMinimum = minY
+//        chart.axisLeft.axisMaximum = maxY
+
+//        chart.setVisibleXRangeMinimum(1f)
+        chart.invalidate()
     }
+
 
     private fun setupSpinners(view: View) {
         spinnerIndicatorType = view.findViewById(R.id.spinnerIndicator)
@@ -188,12 +223,14 @@ class PortfolioOptimisationFragment : Fragment() {
         viewModel.lineData.observe(viewLifecycleOwner) { lineData ->
             Log.i("ChartData", lineData.toString())
             (lineData.getDataSetByIndex(0) as? LineDataSet)?.apply {
-                fillDrawable = ContextCompat.getDrawable(requireContext(), R.drawable.gradient_chart_fill)
+                fillDrawable =
+                    ContextCompat.getDrawable(requireContext(), R.drawable.gradient_chart_fill)
             }
             chart.data = lineData
             Log.i("chart", lineData.toString())
             chart.invalidate()
         }
-    }}
+    }
+}
 
 

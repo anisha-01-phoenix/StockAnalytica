@@ -17,7 +17,8 @@ class PortfolioRepository {
         indicatorType: String,
         ticker: String,
         seriesType: String,
-        timespan: String
+        timespan: String,
+        window: Int
     ): PortfolioResponse {
         return apiService.getIndicatorData(
             indicatorType,
@@ -26,7 +27,7 @@ class PortfolioRepository {
             timespan,
             true,
             "SIUwMPYvXQwTOfiEKmIHN8s6IFCwyVGT",
-            50,
+            window,
             "desc"
         )
     }

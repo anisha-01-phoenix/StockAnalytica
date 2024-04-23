@@ -8,14 +8,24 @@
     android:padding="2dp"
     tools:context=".fragments.StockAnalysisFragment">
 
+    <ProgressBar
+        android:id="@+id/pb4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/submit_button" />
+
     <TextView
         android:id="@+id/textView6"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Select the Ticker:"
         android:layout_marginTop="10dp"
         android:fontFamily="@font/montserrat_semibold"
         android:padding="7dp"
+        android:text="Select the Ticker:"
         android:textColor="@color/black"
         android:textSize="16sp"
         app:layout_constraintStart_toStartOf="parent"

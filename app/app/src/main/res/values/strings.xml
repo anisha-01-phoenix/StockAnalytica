@@ -18,6 +18,7 @@
         <item>JPM</item>
         <item>BAC</item>
         <item>HSBC</item>
+        <item>HSBC</item>
     </string-array>
 
     <string-array name="method_options">

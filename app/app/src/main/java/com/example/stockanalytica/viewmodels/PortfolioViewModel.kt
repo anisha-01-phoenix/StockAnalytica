@@ -25,11 +25,12 @@ class PortfolioViewModel : ViewModel() {
         indicatorType: String,
         ticker: String,
         seriesType: String,
-        timespan: String
+        timespan: String,
+        window: Int
     ) {
         viewModelScope.launch {
             try {
-                val response = repository.fetchIndicatorData(indicatorType, ticker, seriesType, timespan)
+                val response = repository.fetchIndicatorData(indicatorType, ticker, seriesType, timespan, window)
                 portfolio.postValue(response)
 //                Log.i("response", response.toString())
 //                val entries = response.results.values.map {

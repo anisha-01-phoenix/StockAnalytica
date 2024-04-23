@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white"
+    android:padding="5dp"
     tools:context=".fragments.PortfolioOptimisationFragment">
 
     <TextView
@@ -14,7 +15,7 @@
         android:layout_marginTop="10dp"
         android:fontFamily="@font/montserrat_semibold"
         android:padding="7dp"
-        android:text="Ticker:"
+        android:text="Company:"
         android:textColor="@color/black"
         android:textSize="16sp"
         app:layout_constraintStart_toStartOf="parent"
@@ -147,7 +148,7 @@
         android:layout_marginTop="10dp"
         android:fontFamily="@font/montserrat_semibold"
         android:padding="7dp"
-        android:text="Indicator:"
+        android:text="Method:"
         android:textColor="@color/black"
         android:textSize="16sp"
         app:layout_constraintStart_toStartOf="parent"
@@ -184,6 +185,34 @@
             android:entries="@array/indicator_options" />
     </LinearLayout>
 
+    <TextView
+        android:id="@+id/textViewAmount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:fontFamily="@font/montserrat_semibold"
+        android:padding="7dp"
+        android:text="Amount to Invest:"
+        android:textColor="@color/black"
+        android:textSize="16sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textViewSelectIndicator" />
+
+    <EditText
+        android:id="@+id/amount_ET"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/edittext_bg"
+        android:inputType="number"
+        android:padding="4dp"
+        android:textColor="@color/black"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.1"
+        app:layout_constraintStart_toEndOf="@+id/textViewAmount"
+        app:layout_constraintTop_toBottomOf="@+id/ll4" />
+
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/buttonSubmit"
         android:layout_width="wrap_content"
@@ -193,12 +222,12 @@
         android:background="@drawable/gradient_bg"
         android:backgroundTint="#512C44"
         android:fontFamily="@font/montserrat_semibold"
-        android:text="    Check Portfolio   "
+        android:text="    Optimise Portfolio   "
         android:textColor="@color/white"
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/ll4" />
+        app:layout_constraintTop_toBottomOf="@id/textViewAmount" />
 
     <com.github.mikephil.charting.charts.LineChart
         android:id="@+id/chart"
