@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 from flask_pymongo import PyMongo
+from flask_cors import CORS
 from werkzeug.security import generate_password_hash, check_password_hash
 import tensorflow as tf
 import sys
@@ -18,6 +19,7 @@ from pypfopt.efficient_frontier import EfficientCVaR, EfficientFrontier
 from pypfopt.risk_models import CovarianceShrinkage
 
 app = Flask(__name__)
+CORS(app, origins="*")
 app.config["MONGO_URI"] = "mongodb://localhost:27017/bss"  # MongoDB URI
 mongo = PyMongo(app)
 
